@@ -1,4 +1,4 @@
-package br.com.compass.entity.dao;
+package br.com.compass.model.dao;
 
 import br.com.compass.db.Database;
 import lombok.RequiredArgsConstructor;

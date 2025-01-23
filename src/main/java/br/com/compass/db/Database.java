@@ -2,10 +2,7 @@ package br.com.compass.db;
 
 import br.com.compass.db.exception.DbException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,8 +16,8 @@ public class Database {
             try {
                 Properties properties = loadProperties();
                 String url = properties.getProperty("dburl");
-                String username = properties.getProperty("db.username");
-                String password = properties.getProperty("db.password");
+                String username = properties.getProperty("user");
+                String password = properties.getProperty("password");
 
                 connection = DriverManager.getConnection(url, username, password);
 
@@ -55,6 +52,16 @@ public class Database {
         if (resultSet != null) {
             try {
                 resultSet.close();
+            } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            }
+        }
+    }
+
+    public static void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
             }
