@@ -1,10 +1,10 @@
 package br.com.compass.entity.enums;
 
 public enum AccountType {
-    CORRENTE,
-    POUPANCA,
-    SALARIO,
-    EMPRESARIAL,
-    UNIVERSITARIA,
-    INVESTIMENTOS
+    CHECKING,
+    SAVINGS,
+    SALARY,
+    BUSINESS,
+    STUDENT,
+    INVESTMENT
 }
