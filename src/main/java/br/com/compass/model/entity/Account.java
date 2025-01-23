@@ -1,6 +1,6 @@
-package br.com.compass.entity;
+package br.com.compass.model.entity;
 
-import br.com.compass.entity.enums.AccountType;
+import br.com.compass.model.enums.AccountType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,9 +29,9 @@ public class Account {
 
     private String holderPhone;
 
-    private LocalDate HolderBirthdate;
+    private LocalDate holderBirthdate;
 
-    private String HolderCpf;
+    private String holderCpf;
 
     private String password;
 
