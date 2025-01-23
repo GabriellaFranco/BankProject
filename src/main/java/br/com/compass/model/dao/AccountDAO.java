@@ -71,4 +71,27 @@ public class AccountDAO {
         }
     }
 
+    public boolean loginAccount(String acc, String password) {
+        PreparedStatement statement = null;
+
+        try {
+            statement = conn.prepareStatement("SELECT 1 FROM tb_account WHERE " +
+                    "number=CAST(? AS INTEGER) AND password=?");
+
+            statement.setString(1, acc);
+            statement.setString(2, password);
+
+            ResultSet rs = statement.executeQuery();
+
+            return rs.next();
+        }
+        catch (SQLException exception) {
+            System.out.print("Incorrect account number or/and password!");
+            return false;
+        }
+        finally {
+            Database.closeStatement(statement);
+        }
+    }
+
 }
