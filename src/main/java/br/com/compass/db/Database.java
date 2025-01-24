@@ -21,8 +21,8 @@ public class Database {
 
                 connection = DriverManager.getConnection(url, username, password);
 
-            } catch (SQLException | IOException exception) {
-                throw new DbException(exception.getMessage());
+            } catch (SQLException | IOException exc) {
+                throw new DbException(exc.getMessage(), exc);
             }
         }
         return connection;
@@ -33,8 +33,8 @@ public class Database {
             try {
                 connection.close();
             }
-            catch (SQLException e) {
-                throw new DbException(e.getMessage());
+            catch (SQLException exc) {
+                throw new DbException(exc.getMessage(), exc);
             }
         }
     }
@@ -52,8 +52,8 @@ public class Database {
         if (resultSet != null) {
             try {
                 resultSet.close();
-            } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+            } catch (SQLException exc) {
+                throw new DbException(exc.getMessage(), exc);
             }
         }
     }
@@ -62,8 +62,8 @@ public class Database {
         if (statement != null) {
             try {
                 statement.close();
-            } catch (SQLException e) {
-                throw new DbException(e.getMessage());
+            } catch (SQLException exc) {
+                throw new DbException(exc.getMessage(), exc);
             }
         }
     }
