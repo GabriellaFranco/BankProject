@@ -92,8 +92,7 @@ public class App {
                     withdraw(loginAccount, scanner);
                     break;
                 case 3:
-                    // ToDo...
-                    System.out.println("Check Balance.");
+                    checkBalance(loginAccount);
                     break;
                 case 4:
                     // ToDo...
@@ -283,5 +282,9 @@ public class App {
                 .originAccount(account)
                 .build());
     };
+
+    public static void checkBalance(Account account) {
+        System.out.println("Your current balance is " + account.getBalance());
+    }
 
 }
