@@ -89,8 +89,7 @@ public class App {
                     deposit(loginAccount, scanner);
                     break;
                 case 2:
-                    // ToDo...
-                    System.out.println("Withdraw.");
+                    withdraw(loginAccount, scanner);
                     break;
                 case 3:
                     // ToDo...
@@ -244,11 +243,45 @@ public class App {
         account.setBalance(account.getBalance().add(valueDeposit));
         accountDAO.updateAccount(account);
         transactionDAO.makeTransaction(Transaction.builder()
-                        .type(TransactionType.DEPOSIT)
-                        .value(valueDeposit)
-                        .transactionDate(LocalDate.now())
-                        .transferAccount(null)
-                        .originAccount(account)
+                .type(TransactionType.DEPOSIT)
+                .value(valueDeposit)
+                .transactionDate(LocalDate.now())
+                .transferAccount(null)
+                .originAccount(account)
                 .build());
     }
+
+    public static void withdraw(Account account, Scanner scanner) {
+        var withdrawalValueStr = askValueUntilValid("Value: ", value -> {
+
+            try {
+                var valueWithdrawal = new BigDecimal(value);
+                if (valueWithdrawal.compareTo(BigDecimal.ZERO) <= 0) {
+                    System.out.println("The value must be positive!");
+                    return false;
+                }
+                if (valueWithdrawal.compareTo(account.getBalance()) > 0) {
+                    System.out.print("The value is higher than the account balance!\n");
+                    return false;
+                }
+            }
+            catch(NumberFormatException exc){
+                System.out.println("Invalid value!");
+                return false;
+            }
+            return true;
+        }, scanner);
+
+        var withdrawalValue = new BigDecimal(withdrawalValueStr);
+        account.setBalance(account.getBalance().subtract(withdrawalValue));
+        accountDAO.updateAccount(account);
+        transactionDAO.makeTransaction(Transaction.builder()
+                .type(TransactionType.WITHDRAWAL)
+                .value(withdrawalValue)
+                .transactionDate(LocalDate.now())
+                .transferAccount(null)
+                .originAccount(account)
+                .build());
+    };
+
 }

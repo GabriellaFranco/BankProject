@@ -7,6 +7,7 @@ import br.com.compass.model.enums.AccountType;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.*;
+import java.util.InputMismatchException;
 
 
 @RequiredArgsConstructor
@@ -98,7 +99,7 @@ public class AccountDAO {
             }
         }
         catch (SQLException exception) {
-            System.out.print("Incorrect account number or/and password!");
+            System.out.println("Incorrect account number or/and password!");
             return null;
         }
         finally {
