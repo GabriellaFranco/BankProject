@@ -8,10 +8,7 @@ import br.com.compass.model.enums.TransactionType;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.time.LocalDate;
 
 @RequiredArgsConstructor
@@ -51,5 +48,25 @@ public class TransactionDAO {
         }
 
     }
+
+    public boolean targetAccountExistsAndActive(Long accountNumber) {
+        PreparedStatement statement = null;
+
+        try {
+            statement = conn.prepareStatement("SELECT 1 FROM tb_account WHERE number=? AND active=true");
+
+            statement.setLong(1, accountNumber);
+
+            ResultSet rs = statement.executeQuery();
+
+            return rs.next();
+        }
+        catch (SQLException exc) {
+            throw new DbException(exc.getMessage(), exc);
+        }
+        finally {
+            Database.closeStatement(statement);
+        }
+    };
 
 }

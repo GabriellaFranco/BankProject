@@ -17,8 +17,7 @@ CREATE TYPE account_type AS ENUM(
 CREATE TYPE transaction_type AS ENUM (
  	'DEPOSIT',
     'WITHDRAWAL',
-    'INCOMING_TRANSFER',
-    'OUTGOING_TRANSFER'
+    'TRANSFER'
 );
 
 CREATE TABLE tb_account (

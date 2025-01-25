@@ -19,6 +19,40 @@ public class AccountDAO {
         return new AccountDAO(Database.getConnection());
     }
 
+    public Account getAccount(Long accountNumber) {
+        PreparedStatement statement = null;
+
+        try {
+            statement = conn.prepareStatement("SELECT * FROM tb_account WHERE number=?");
+
+            statement.setLong(1, accountNumber);
+
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                return Account.builder()
+                        .number(rs.getLong("number"))
+                        .balance(rs.getBigDecimal("balance"))
+                        .type(AccountType.valueOf(rs.getString("type")))
+                        .openingDate(rs.getDate("opening_date").toLocalDate())
+                        .holder(rs.getString("holder"))
+                        .holderPhone(rs.getString("holder_phone"))
+                        .holderBirthdate(rs.getDate("holder_birthdate").toLocalDate())
+                        .holderCpf(rs.getString("holder_cpf"))
+                        .password(rs.getString("password"))
+                        .active(rs.getBoolean("active"))
+                        .build();
+            }
+        }
+        catch (SQLException exc) {
+            throw new DbException(exc.getMessage(), exc);
+        }
+        finally {
+            Database.closeStatement(statement);
+        }
+        return null;
+    }
+
     public void createAccount(Account account) {
         PreparedStatement statement = null;
 

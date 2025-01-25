@@ -48,6 +48,10 @@ public class App {
                     var loginAccount = loginScreen(scanner);
                     if (loginAccount != null) {
                         System.out.println("Login successful!");
+                        if (!loginAccount.getActive()) {
+                            loginAccount.setActive(true);
+                            accountDAO.updateAccount(loginAccount);
+                        }
                         bankMenu(scanner, loginAccount);
                     } else {
                         System.out.println("Login failed. Returning to main menu.");
@@ -95,8 +99,7 @@ public class App {
                     checkBalance(loginAccount);
                     break;
                 case 4:
-                    // ToDo...
-                    System.out.println("Transfer.");
+                    transfer(loginAccount, scanner);
                     break;
                 case 5:
                     // ToDo...
@@ -117,7 +120,7 @@ public class App {
         Scanner sc = new Scanner(System.in);
         Account account = new Account();
 
-        var holderName = askValueUntilValid("What's your full name?", name -> {
+        var holderName = askValueUntilValid("What's your full name? ", name -> {
             if (!name.matches("[a-zA-Z' ]+")) {
                 System.out.println("Please enter a valid name!");
                 return false;
@@ -125,7 +128,7 @@ public class App {
             return true;
         }, sc);
 
-        var holderBirthdate = askValueUntilValid("What's your birthdate? (dd/mm/yyyy):", birthdate -> {
+        var holderBirthdate = askValueUntilValid("What's your birthdate? (dd/mm/yyyy): ", birthdate -> {
             try {
                 LocalDate date = LocalDate.parse(birthdate, dtf);
                 if (date.isAfter(LocalDate.now()) || date.isBefore(LocalDate.of(1900, 1, 1))) {
@@ -152,7 +155,7 @@ public class App {
             return true;
         }, sc);
 
-        var holderPhone = askValueUntilValid("Inform a good phone number (XX XXXXXXXXX):", phone -> {
+        var holderPhone = askValueUntilValid("Inform a good phone number (XX XXXXXXXXX): ", phone -> {
             if (!phone.matches("[0-9]+")) {
                 System.out.println("Please enter a valid phone number!");
                 return false;
@@ -164,7 +167,7 @@ public class App {
             return true;
         }, sc);
 
-        var password = askValueUntilValid("Choose a password for your account:", pass -> {
+        var password = askValueUntilValid("Choose a password for your account: ", pass -> {
             if (pass.length() < 6) {
                 System.out.println("The password must have at least 6 characters");
                 return false;
@@ -173,7 +176,7 @@ public class App {
         }, sc);
 
         var accountType = askValueUntilValid("At last, please choose the type of account you want to open (CHECKING, SAVINGS, SALARY" +
-                "BUSINESS, STUDENT, INVESTMENT)", type -> {
+                "BUSINESS, STUDENT, INVESTMENT): ", type -> {
 
             var typeValidation = Arrays.stream(AccountType.values())
                     .anyMatch(x -> x.toString().equals(type.toUpperCase()));
@@ -207,7 +210,7 @@ public class App {
         System.out.print(msg);
         var value = scanner.nextLine();
         while (!validator.test(value)) {
-            System.out.println(msg);
+            System.out.print(msg);
             value = scanner.nextLine();
         }
         return value;
@@ -285,6 +288,63 @@ public class App {
 
     public static void checkBalance(Account account) {
         System.out.println("Your current balance is " + account.getBalance());
+    }
+
+    public static void transfer(Account origin, Scanner scanner) {
+
+        System.out.print("Enter the target account number: ");
+        Long targetAccountNumber;
+        try {
+            targetAccountNumber = Long.parseLong(scanner.nextLine());
+        }
+        catch (NumberFormatException exc) {
+            System.out.println("Invalid number, please try again!");
+            return;
+        }
+
+        if (!transactionDAO.targetAccountExistsAndActive(targetAccountNumber)) {
+            System.out.println("The target account is inactive or doesn't exist!");
+            return;
+        }
+
+        var transferValueStr = askValueUntilValid("Value: ", valueT -> {
+            try {
+                var valueTransfer = new BigDecimal(valueT);
+                if (valueTransfer.compareTo(BigDecimal.ZERO) <= 0) {
+                    System.out.println("The value must be positive!");
+                    return false;
+                }
+                if (valueTransfer.compareTo(origin.getBalance()) > 0) {
+                    System.out.println("The value is higher than your account balance!");
+                    return false;
+                }
+                if (origin.getNumber().equals(targetAccountNumber)) {
+                    System.out.println("The target account can't be the same as the origin account!");
+                    return false;
+                }
+            }
+            catch (NumberFormatException exc) {
+                System.out.println("Invalid value, please try again!");
+                return false;
+            }
+
+            return true;
+        }, scanner);
+
+        var targetAccount = accountDAO.getAccount(targetAccountNumber);
+
+        var transferedValue = new BigDecimal(transferValueStr);
+        origin.setBalance(origin.getBalance().subtract(transferedValue));
+        targetAccount.setBalance(targetAccount.getBalance().add(transferedValue));
+        accountDAO.updateAccount(origin);
+        accountDAO.updateAccount(targetAccount);
+        transactionDAO.makeTransaction(Transaction.builder()
+                        .type(TransactionType.TRANSFER)
+                        .originAccount(origin)
+                        .value(transferedValue)
+                        .transferAccount(targetAccount)
+                        .transactionDate(LocalDate.now())
+                .build());
     }
 
 }
