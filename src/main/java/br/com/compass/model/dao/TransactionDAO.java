@@ -4,12 +4,15 @@ import br.com.compass.db.Database;
 import br.com.compass.db.exception.DbException;
 import br.com.compass.model.entity.Account;
 import br.com.compass.model.entity.Transaction;
+import br.com.compass.model.enums.AccountType;
 import br.com.compass.model.enums.TransactionType;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class TransactionDAO {
@@ -69,4 +72,40 @@ public class TransactionDAO {
         }
     };
 
+    public List<Transaction> bankStatement(Long accountNumber) {
+        PreparedStatement statement = null;
+
+        try {
+            statement = conn.prepareStatement("SELECT * FROM tb_transaction WHERE " +
+                    "origin_account=? OR transfer_account=? " +
+                    "ORDER BY id");
+
+            statement.setLong(1, accountNumber);
+            statement.setLong(2, accountNumber);
+
+            ResultSet rs = statement.executeQuery();
+            List<Transaction> transactions = new ArrayList<>();
+
+            while (rs.next()) {
+                var transaction = Transaction.builder()
+                        .type(TransactionType.valueOf(rs.getString("type")))
+                        .value(rs.getBigDecimal("value"))
+                        .transactionDate(rs.getDate("transaction_date").toLocalDate())
+                        .transferAccount(AccountDAO.createAccountDAO()
+                                .getAccount(rs.getLong("transfer_account")))
+                        .originAccount(AccountDAO.createAccountDAO()
+                                .getAccount(rs.getLong("origin_account")))
+                        .build();
+                transactions.add(transaction);
+            }
+
+            return transactions;
+        }
+        catch (SQLException exc) {
+            throw new DbException(exc.getMessage(), exc);
+        }
+        finally {
+            Database.closeStatement(statement);
+        }
+    }
 }
