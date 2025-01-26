@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Predicate;
 
@@ -102,12 +104,10 @@ public class App {
                     transfer(loginAccount, scanner);
                     break;
                 case 5:
-                    // ToDo...
-                    System.out.println("Bank Statement.");
+                    bankStatement(loginAccount.getNumber());
                     break;
                 case 0:
-                    // ToDo...
-                    System.out.println("Exiting...");
+                    System.out.println("Logging out...");
                     running = false;
                     return;
                 default:
@@ -287,7 +287,7 @@ public class App {
     };
 
     public static void checkBalance(Account account) {
-        System.out.println("Your current balance is " + account.getBalance());
+        System.out.println("Your current balance is R$" + account.getBalance());
     }
 
     public static void transfer(Account origin, Scanner scanner) {
@@ -347,4 +347,21 @@ public class App {
                 .build());
     }
 
+    public static void bankStatement(Long accountNumber) {
+        List<Transaction> transactions = transactionDAO.bankStatement(accountNumber);
+        transactions.forEach(transaction -> {
+            String targetAccount;
+            if (transaction.getTransferAccount() != null) {
+                targetAccount =  " TO: " + transaction.getTransferAccount().getNumber();
+                if (Objects.equals(transaction.getTransferAccount().getNumber(), accountNumber)) {
+                    targetAccount =  " FROM: " + transaction.getOriginAccount().getNumber();
+                }
+            }
+            else {
+                targetAccount = "";
+            }
+            System.out.println(transaction.getType() + " OF R$" + transaction.getValue() + targetAccount
+                    + " (" + transaction.getTransactionDate() + ")");
+        });
+    }
 }

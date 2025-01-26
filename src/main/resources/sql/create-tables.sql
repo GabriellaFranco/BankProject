@@ -1,7 +1,7 @@
---DROP TABLE IF EXISTS tb_account CASCADE;
---DROP TABLE IF EXISTS tb_transaction CASCADE;
---DROP TYPE IF EXISTS account_type;
---DROP TYPE IF EXISTS transaction_type;
+DROP TABLE IF EXISTS tb_account CASCADE;
+DROP TABLE IF EXISTS tb_transaction CASCADE;
+DROP TYPE IF EXISTS account_type;
+DROP TYPE IF EXISTS transaction_type;
 
 SET DateStyle TO DMY;
 
@@ -38,9 +38,10 @@ CREATE TABLE tb_transaction (
 	type transaction_type NOT NULL,
 	value numeric (20, 2) NOT NULL,
 	transaction_date date,
-	transfer_account varchar(20),
+	transfer_account serial,
 	origin_account serial,
 
-	CONSTRAINT fk_account FOREIGN KEY (origin_account) references tb_account(number)
+	CONSTRAINT fk_account FOREIGN KEY (origin_account) references tb_account(number),
+	CONSTRAINT fk_account_transfer FOREIGN KEY (transfer_account) references tb_account(number)
 );
 

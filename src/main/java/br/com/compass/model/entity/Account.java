@@ -36,6 +36,4 @@ public class Account {
     private String password;
 
     private Boolean active;
-
-    private List<Transaction> transactions = new ArrayList<>();
 }
