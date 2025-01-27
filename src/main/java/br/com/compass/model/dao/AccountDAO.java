@@ -72,7 +72,7 @@ public class AccountDAO {
             statement.setBoolean(9, account.getActive());
 
             statement.executeUpdate();
-            System.out.println("Account successfully created. Please login to activate transactions.");
+            System.out.println("Account successfully created. Please login to activate transactions.\n");
         } catch (SQLException exc) {
             throw new DbException(exc.getMessage(), exc);
         } finally {
@@ -133,7 +133,7 @@ public class AccountDAO {
             }
         }
         catch (SQLException exception) {
-            System.out.println("Incorrect account number or/and password!");
+            System.out.println("Incorrect account number or/and password!\n");
             return null;
         }
         finally {
