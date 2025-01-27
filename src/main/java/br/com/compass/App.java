@@ -1,8 +1,14 @@
 package br.com.compass;
 
+import br.com.compass.model.dao.AccountDAO;
+import br.com.compass.model.entity.Account;
+
 import java.util.Scanner;
 
 public class App {
+
+    private static final AccountDAO accountDAO = AccountDAO.createAccountDAO();
+    private static final Bank bank = new Bank();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -28,22 +34,33 @@ public class App {
 
             switch (option) {
                 case 1:
-                    bankMenu(scanner);
-                    return;
+                    var loginAccount = bank.loginScreen(scanner);
+                    if (loginAccount != null) {
+                        System.out.println("Login successful!\n");
+                        if (!loginAccount.getActive()) {
+                            loginAccount.setActive(true);
+                            accountDAO.updateAccount(loginAccount);
+                        }
+                        bankMenu(scanner, loginAccount);
+                    } else {
+                        System.out.println("Login failed. Returning to main menu.\n");
+                    }
+                    break;
+
                 case 2:
-                    // ToDo...
-                    System.out.println("Account Opening.");
+                    var account = bank.getAccountInfo();
+                    accountDAO.createAccount(account);
                     break;
                 case 0:
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid option! Please try again.");
+                    System.out.println("Invalid option! Please try again.\n");
             }
         }
     }
 
-    public static void bankMenu(Scanner scanner) {
+    public static void bankMenu(Scanner scanner, Account loginAccount) {
         boolean running = true;
 
         while (running) {
@@ -58,37 +75,31 @@ public class App {
             System.out.print("Choose an option: ");
 
             int option = scanner.nextInt();
+            scanner.nextLine();
 
             switch (option) {
                 case 1:
-                    // ToDo...
-                    System.out.println("Deposit.");
+                    bank.deposit(loginAccount, scanner);
                     break;
                 case 2:
-                    // ToDo...
-                    System.out.println("Withdraw.");
+                    bank.withdraw(loginAccount, scanner);
                     break;
                 case 3:
-                    // ToDo...
-                    System.out.println("Check Balance.");
+                    bank.checkBalance(loginAccount);
                     break;
                 case 4:
-                    // ToDo...
-                    System.out.println("Transfer.");
+                    bank.transfer(loginAccount, scanner);
                     break;
                 case 5:
-                    // ToDo...
-                    System.out.println("Bank Statement.");
+                    bank.bankStatement(loginAccount.getNumber());
                     break;
                 case 0:
-                    // ToDo...
-                    System.out.println("Exiting...");
+                    System.out.println("Logging out...");
                     running = false;
                     return;
                 default:
-                    System.out.println("Invalid option! Please try again.");
+                    System.out.println("Invalid option! Please try again.\n");
             }
         }
     }
-    
 }
