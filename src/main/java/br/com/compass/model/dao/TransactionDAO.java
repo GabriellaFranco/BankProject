@@ -41,7 +41,7 @@ public class TransactionDAO {
             statement.setLong(5, transaction.getOriginAccount().getNumber());
 
             statement.executeUpdate();
-            System.out.println("Transaction successful!");
+            System.out.println("Transaction successful!\n");
         }
         catch (SQLException exc) {
             throw new DbException(exc.getMessage(), exc);
